@@ -62,6 +62,10 @@ jobs:
             | tee "$RUNNER_TEMP/xcodebuild.log" | grep -E "error:|warning: .*Shared|BUILD (SUCCEEDED|FAILED)" || true
           grep -q "BUILD SUCCEEDED" "$RUNNER_TEMP/xcodebuild.log"
 
+      - name: Report build errors
+        if: failure()
+        run: bash .github/scripts/report-errors.sh "$RUNNER_TEMP/xcodebuild.log"
+
       - name: Upload build log
         if: failure()
         uses: actions/upload-artifact@v4

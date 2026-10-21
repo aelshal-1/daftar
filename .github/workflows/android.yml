@@ -31,7 +31,13 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build debug APK
-        run: ./gradlew :androidApp:assembleDebug
+        run: |
+          set -o pipefail
+          ./gradlew :androidApp:assembleDebug --stacktrace 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+
+      - name: Report build errors
+        if: failure()
+        run: bash .github/scripts/report-errors.sh "$RUNNER_TEMP/gradle.log"
 
       - name: Decode release keystore
         if: env.HAS_KEYSTORE == 'true' && github.event_name != 'pull_request'
